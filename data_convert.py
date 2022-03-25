@@ -1,6 +1,7 @@
 import json
-import csv
 import os
+
+
 
 data_dir = 'data/goldpaths-all'
 raw_data_list = []
@@ -51,7 +52,7 @@ for raw_data in raw_data_list:
                     target = f"{curr_action} [SEP]"
 
 
-                    
+
                 else:
                     curr_step = steps[i]
                     curr_action = curr_step['action']
@@ -82,14 +83,14 @@ if val_data == []:
 if test_data == []:
     test_data = data[int(0.1 * mlen):int(0.2 * mlen)]
 
-with open("sciworld_formatted_train.jsonl", 'w') as f:
+with open("data/sciworld_formatted_train.jsonl", 'w') as f:
     for item in train_data:
         f.write(json.dumps(item) + "\n")
 
-with open("sciworld_formatted_val.jsonl", 'w') as f:
+with open("data/sciworld_formatted_val.jsonl", 'w') as f:
     for item in val_data:
         f.write(json.dumps(item) + "\n")
 
-with open("sciworld_formatted_test.jsonl", 'w') as f:
+with open("data/sciworld_formatted_test.jsonl", 'w') as f:
     for item in test_data:
         f.write(json.dumps(item) + "\n")

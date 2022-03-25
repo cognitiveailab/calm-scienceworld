@@ -1,4 +1,4 @@
-# KG-A2C
+# CALM-GPT2
 This repository contains a reference implementation CALM as mentioned in [Keep CALM and Explore: Language Models for Action Generation in Text-based Games](https://arxiv.org/abs/2010.02903), that has been modified for use with the [ScienceWorld](https://www.github.com/allenai/ScienceWorld) environment.
 
 ## Quickstart
