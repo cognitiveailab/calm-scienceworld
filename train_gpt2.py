@@ -69,6 +69,7 @@ def _train_gpt(train_dataloader, validation_dataloader, lm, save_dir_root, args)
             loss.backward()
             loss_value = loss.item()
             tr_loss += loss_value
+            total_actions += 1
 
             if (step + 1) % gradient_accumulation_steps == 0:
                 torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
@@ -97,8 +98,6 @@ def _validate_gpt(eval_dataloader, lm):
     model = lm.model
     eval_loss = 0.0
     nb_eval_steps = 0
-    total_validation_actions = 0
-    total_correct_validation_actions = 0
     n_gpu = torch.cuda.device_count()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if n_gpu > 1:
@@ -110,8 +109,6 @@ def _validate_gpt(eval_dataloader, lm):
         b_input_ids, b_input_mask, b_strat = batch
         b_labels = b_input_ids.clone()
         b_labels[b_strat == 0] = -100
-        ground_truth = b_input_ids.clone()
-        total_tokens_in_example = b_strat.sum(dim=1)
 
         b_input_ids = b_input_ids.to(device)
         b_labels = b_labels.to(device)
@@ -121,20 +118,12 @@ def _validate_gpt(eval_dataloader, lm):
             outputs = model(b_input_ids, token_type_ids=None, attention_mask=b_input_mask, labels=b_labels)
         lm_loss = outputs[0]
         eval_loss += lm_loss.mean().item()
-        prediction = torch.argmax(outputs[1], dim=2).to('cpu')
-        pad = torch.zeros((prediction.shape[0], 1), dtype=torch.long)
-        prediction = torch.cat((pad, prediction[:, :-1]), dim=1)
-        diff = prediction - ground_truth == 0
-        diff = diff * b_strat
-        total_correct_for_each_example = diff.sum(dim=1)
-        total_validation_actions += b_input_ids.shape[0]
-        total_correct_validation_actions += (total_correct_for_each_example == total_tokens_in_example).sum()
         nb_eval_steps += 1
 
     eval_loss = eval_loss / nb_eval_steps
-    eval_acc = total_correct_validation_actions.item() / total_validation_actions
 
-    return eval_loss, eval_acc
+
+    return eval_loss
 
 def save_gpt(model, tokenizer, save_dir_root, name):
     output_dir = os.path.join(save_dir_root, "gpt", name)
