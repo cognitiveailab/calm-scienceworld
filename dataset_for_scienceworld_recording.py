@@ -1,9 +1,9 @@
 import torch
 import os
 import json
-import glob
+import random
 import numpy as np
-from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
+from torch.utils.data import TensorDataset, DataLoader, RandomSampler
 
 
 def get_dataset(data_file, tokenizer, max_len=-1, shuffle_trajectories=False, data_percentage=1):
@@ -11,7 +11,9 @@ def get_dataset(data_file, tokenizer, max_len=-1, shuffle_trajectories=False, da
 
     with open(os.path.join(data_file), 'r') as f:
         data_list = list(f)
-
+        if shuffle_trajectories:
+            data_list = random.shuffle(data_list)
+        data_list = data_list[:int(len(data_list)*data_percentage)]
         for json_str in data_list:
             data = json.loads(json_str)
             observation_ids = tokenizer.encode(data["input"])
@@ -23,8 +25,8 @@ def get_dataset(data_file, tokenizer, max_len=-1, shuffle_trajectories=False, da
             if max_len == -1 or len(token_ids) < max_len:
                 token_id_set.append(token_ids)
                 act_mask_set.append(act_mask)
-                
-                
+
+
     return token_id_set, act_mask_set
 
 
@@ -102,10 +104,10 @@ def _get_dataloader(data_directory, tokenizer, max_len=256, bs=16, shuffle_traje
 
     return dataloader
 
-def get_dataloader(exclude, train_data, val_data, tokenizer, max_len=256, bs=16, shuffle_trajectories=False,
+def get_dataloader(train_data, val_data, tokenizer, max_len=256, bs=16, shuffle_trajectories=False,
                    data_percentage=1):
-    train_dataloader = _get_dataloader(exclude, train_data, tokenizer, max_len=max_len, bs=bs, shuffle_trajectories=shuffle_trajectories,
+    train_dataloader = _get_dataloader(train_data, tokenizer, max_len=max_len, bs=bs, shuffle_trajectories=shuffle_trajectories,
                    data_percentage=data_percentage)
-    val_dataloader = _get_dataloader(exclude, val_data, tokenizer, max_len=max_len, bs=bs, shuffle_trajectories=shuffle_trajectories,
+    val_dataloader = _get_dataloader(val_data, tokenizer, max_len=max_len, bs=bs, shuffle_trajectories=shuffle_trajectories,
                    data_percentage=data_percentage)
     return train_dataloader, val_dataloader
