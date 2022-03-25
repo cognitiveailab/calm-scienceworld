@@ -54,7 +54,7 @@ python train.py --lm_path gpt2_lm --num_envs 8 --output_dir logs --task_num 0 --
 ```
 
 Here:
-- **lm_path** Path the path pretrained GPT2 model checkpoint folder
+- **lm_path** Path to the pretrained GPT2 model checkpoint folder
 - **num_envs:** The number of environment threads to simultaneously use during training (8 is a common number)
 - **output_dir:** output directory
 - **task_num:** The ScienceWorld task index (0-29). *See **task list** below*
