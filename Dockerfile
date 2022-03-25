@@ -11,11 +11,6 @@ ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
 ENV LIBRARY_PATH=/usr/local/cuda/lib64/stubs
 
-#RUN apt-get update \
-#   &&  apt-get install -y --no-install-recommends libmlx4-1 libmlx5-1 librdmacm1 libibverbs1 libmthca1 libdapl2 dapl2-utils openssh-client openssh-server iproute2 \
-#   &&  apt-get install -y build-essential bzip2=1.0.6-8ubuntu0.2 libbz2-1.0=1.0.6-8ubuntu0.2 systemd git wget cpio libsm6 libxext6 libxrender-dev fuse \
-#   &&  apt-get clean -y \
-#   &&  rm -rf /var/lib/apt/lists/*
 ENV SVDIR=/var/runit
 ENV WORKER_TIMEOUT=300
 
@@ -31,7 +26,7 @@ EXPOSE 25300-25600
 USER root:root
 WORKDIR /opt
 RUN apt-get update \
-   &&  apt-get install -y --no-install-recommends redis-server default-jre
+   &&  apt-get install -y --no-install-recommends default-jre
 RUN apt-get install -y --no-install-recommends unzip
 EXPOSE 5002-5100
 EXPOSE 5002 5003 5004 5005 5006 5007 5008 5009 5010 5011 5012 5013 5014 5015 5016 5017 5018
@@ -40,8 +35,6 @@ EXPOSE 50022 50032 50042 50052 50062 50072 50082 50092 50102 50112 50122 50132 5
 EXPOSE 6379
 COPY . /calm
 RUN pip install -r /calm/requirements.txt
-
-RUN python -m spacy download en_core_web_sm
 
 WORKDIR /
 
