@@ -1,8 +1,5 @@
 import torch
-from torch.nn import functional as F
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
-from transformers.modeling_utils import *
-from transformers.generation_beam_search import BeamHypotheses
 from .base_lm import BaseLM, device
 
 
@@ -22,7 +19,7 @@ class GPT2LM(BaseLM):
     def load_tokenizer(self,tokenizer_path):
         self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2' if tokenizer_path is None else tokenizer_path)
         self.tokenizer.add_special_tokens({'cls_token': '[CLS]', 'sep_token': '[SEP]'})
-        self.model.resize_token_embeddings(len(self.tokenizer)) 
+        self.model.resize_token_embeddings(len(self.tokenizer))
 
     def act2ids(self, act):
         ret = self.tokenizer.encode(clean(act), add_prefix_space=True)

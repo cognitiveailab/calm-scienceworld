@@ -24,9 +24,11 @@ cd data
 unzip goldpaths-all.zip -d goldpaths-all
 cd ..
 ```
+Notice that do not include any other files in the gold path data file folder.
+
 Run
 ```bash
-python data_convert.py
+python data_convert.py --data_dr data/goldpaths-all --output_dir data
 ```
 to generate formatted data for GPT2 training. You can skip this step because we already include the formatted data in this repository. You can unzip the formatted gold path data files in the data folder by
 ```bash
@@ -68,7 +70,7 @@ Here:
 
 ## ScienceWorld Task List
 ```
-TASK LIST: 
+TASK LIST:
     0: 	                                                 task-1-boil  (30 variations)
     1: 	                        task-1-change-the-state-of-matter-of  (30 variations)
     2: 	                                               task-1-freeze  (30 variations)

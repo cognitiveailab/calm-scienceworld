@@ -8,7 +8,7 @@ from model import DRRN
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def build_input_str(task_desc, prev_ob, prev_act, curr_ob, curr_inv, curr_look):
-    return f"[CLS] {task_desc} [SEP] {curr_ob} [SEP] {curr_inv} [SEP] {curr_look} [SEP] {prev_ob}[SEP] {prev_act}[SEP]
+    return f"[CLS] {task_desc} [SEP] {curr_ob} [SEP] {curr_inv} [SEP] {curr_look} [SEP] {prev_ob}[SEP] {prev_act}[SEP]"
 
 def build_state(lm, obs, infos, prev_obs=None, prev_acts=None):
     """

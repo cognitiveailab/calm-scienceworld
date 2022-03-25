@@ -1,22 +1,20 @@
-import os
-import time
-from drrn import build_state
-from memory import State
 import argparse
-import logging
 import json
-from statistics import mean
-from env import CALMScienceWorldEnv
-from random import choice
-from collections import defaultdict
-import torch
+import os
 import random
+import time
+import torch
 
-import sys
+from collections import defaultdict
+from random import choice
 from scienceworld import BufferedHistorySaver
+from statistics import mean
 
-from lm import *
-from drrn import *
+from drrn import DRRN_Agent, build_state
+from env import CALMScienceWorldEnv
+from lm import GPT2LM
+from memory import Transition
+
 
 
 class CALMModel(object):
@@ -36,7 +34,7 @@ class CALMModel(object):
     def init_envs(self):
         args = self.args
 
-        env = CALMScienceWorldEnv(args.jar_path,args.seed, args.task_num, args.env_step_limit, args.stuck_step_limit, get_valid=args.lm_top_k == 0, 
+        env = CALMScienceWorldEnv(args.jar_path,args.seed, args.task_num, args.env_step_limit, args.stuck_step_limit, get_valid=args.lm_top_k == 0,
                                 simplification_str=args.simplification_str, thread_offset=0)
         env.create(99, 0)
 
@@ -52,8 +50,7 @@ class CALMModel(object):
     def evaluate(self, train_steps):
         step = 0
         done = False
-        
-        start = time.time()
+
         obs, rewards, dones, infos, transitions = [], [], [], [], []
         env_steps, max_score, d_in, d_out = 0, 0, defaultdict(list), defaultdict(list)
 
@@ -78,7 +75,7 @@ class CALMModel(object):
         episode = 0
         while episode < self.args.max_eval_episodes:
             # act
-            action_ids, action_idxs, action_values = self.agent.act(states, valid_ids, lm=self.lm,
+            action_ids, action_idxs, _ = self.agent.act(states, valid_ids, lm=self.lm,
                                                             eps=self.args.eps, alpha=self.args.alpha, k=self.args.eps_top_k)
             action_strs = [info['valid'][idx] for info, idx in zip(infos, action_idxs)]
 
@@ -90,7 +87,7 @@ class CALMModel(object):
                         for transition in transitions[i]:
                             self.agent.observe(transition, is_prior=True)
                     episode += 1
-                    
+
                     self.eval_scores.append(infos[i]['score'])
                     if episode < 9:
                         last_10_score = mean(self.eval_scores)
@@ -108,7 +105,7 @@ class CALMModel(object):
                     next_obs, next_rewards, next_dones, next_infos = next_obs + [ob], next_rewards + [0], next_dones + [
                         False], next_infos + [info]
                     continue
-                prev_inv, prev_look = infos[i]['inv'], infos[i]['look']
+
                 ob, reward, done, info = env.step(action)
                 if self.args.lm_top_k:  # deal with rejection
                     key = hash(tuple(states[i][0] + states[i][1] + states[i][2]))
@@ -156,7 +153,7 @@ class CALMModel(object):
                     self.agent.observe(transition[-1])  # , is_prior=(rew != 0))
             obs, states, valid_ids = next_obs, next_states, next_valids
             step += 1
-          
+
 
 
     def train(self):
@@ -200,7 +197,7 @@ class CALMModel(object):
                             self.agent.observe(transition, is_prior=True)
 
                     self.train_scores.append(infos[i]['score'])
-                    
+
                     print(f"Episode {episode}, Variation {env.variation}")
                     print(f"Totol Steps {step}")
                     print(f"Episode Steps {infos[i]['moves']}")
@@ -215,8 +212,8 @@ class CALMModel(object):
                         last_10_score = mean(self.train_scores[int(len(self.train_scores)*0.9):])
                     run_history = infos[i]['history']
                     self.bufferedHistorySaverTrain.storeRunHistory(run_history, episode, notes={'last_10_score': last_10_score, 'step': step})
-                    self.bufferedHistorySaverTrain.saveRunHistoriesBufferIfFull(maxPerFile=self.args.max_histories_per_file)                
-                    
+                    self.bufferedHistorySaverTrain.saveRunHistoriesBufferIfFull(maxPerFile=self.args.max_histories_per_file)
+
                     variation = random.choice(self.train_var_nos)
                     env.load(variation)
                     ob, info = env.reset()
@@ -224,7 +221,7 @@ class CALMModel(object):
                     next_obs, next_rewards, next_dones, next_infos = next_obs + [ob], next_rewards + [0], next_dones + [
                         False], next_infos + [info]
                     continue
-                prev_inv, prev_look = infos[i]['inv'], infos[i]['look']
+
                 ob, reward, done, info = env.step(action)
                 if self.args.lm_top_k:  # deal with rejection
                     key = hash(tuple(states[i][0] + states[i][1] + states[i][2]))
@@ -281,17 +278,17 @@ class CALMModel(object):
                 json.dump(d_in, open('%s/d_in.json' % self.args.output_dir, 'w'), indent=4)
                 json.dump(d_out, open('%s/d_out.json' % self.args.output_dir, 'w'), indent=4)
                 json.dump(self.lm.generate_dict, open('%s/lm.json' % self.args.output_dir, 'w'), indent=4)
-            
+
             if step % self.args.eval_freq == 0:
                 with torch.no_grad():
                     self.evaluate(step)
-        
+
         self.bufferedHistorySaverTrain.saveRunHistoriesBufferIfFull(maxPerFile=self.args.max_histories_per_file, forceSave=True)
         self.bufferedHistorySaverEval.saveRunHistoriesBufferIfFull(maxPerFile=self.args.max_histories_per_file, forceSave=True)
 
         with open(os.path.join(self.args.output_dir, "train_episode_score.json"), 'w') as f:
             json.dump(self.train_scores,f)
-        
+
         with open(os.path.join(self.args.output_dir, "eval_episode_score.json"), 'w') as f:
             json.dump(self.eval_scores,f)
 
@@ -319,11 +316,6 @@ def parse_args():
     parser.add_argument('--embedding_dim', default=128, type=int)
     parser.add_argument('--hidden_dim', default=128, type=int)
 
-    # logger
-    parser.add_argument('--tensorboard', default=0, type=int)
-    parser.add_argument('--wandb', default=0, type=int)
-    parser.add_argument('--wandb_project', default='textgame', type=str)
-
     # language model
     parser.add_argument('--lm_top_k', default=30, type=int,
                         help='when >0, use lm top-k actions in place of ScienceWorld action detection')
@@ -338,7 +330,7 @@ def parse_args():
                         help='-1: uniform exploration; 0: ~ softmax lm_value; >0: ~ uniform(top k w.r.t. lm_value)')
     parser.add_argument('--alpha', default=0, type=float,
                         help='act_value = alpha * bert_value + (1-alpha) * q_value; only used when eps is None now')
-    
+
     parser.add_argument("--jar_path", type=str)
 
     parser.add_argument("--task_num", type=int, default=0)
@@ -351,7 +343,7 @@ def parse_args():
 def main():
     args = parse_args()
     os.makedirs(args.output_dir, exist_ok=True)
-    
+
     trainer = CALMModel(args)
     trainer.train()
 

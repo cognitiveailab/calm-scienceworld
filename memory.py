@@ -1,5 +1,6 @@
-from collections import namedtuple
 import random
+
+from collections import namedtuple
 
 State = namedtuple('State', ('obs', 'description', 'inventory', 'state'))
 Transition = namedtuple('Transition', ('state', 'act', 'reward', 'next_state', 'next_acts', 'done'))
@@ -31,7 +32,7 @@ class PrioritizedReplayMemory(object):
         self.beta_capacity = capacity - self.alpha_capacity
         self.alpha_memory, self.beta_memory = [], []
         self.alpha_position, self.beta_position = 0, 0
-    
+
     def clear_alpha(self):
         self.alpha_memory = []
         self.alpha_position = 0

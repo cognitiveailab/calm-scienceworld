@@ -1,9 +1,15 @@
+import argparse
 import json
 import os
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_dir', default='data/goldpaths-all')
+    parser.add_argument('--output_dir', default='data')
+    return parser.parse_args()
 
-
-data_dir = 'data/goldpaths-all'
+args = parse_args()
+data_dir = args.data_dir
 raw_data_list = []
 
 for filename in os.listdir(data_dir):
@@ -83,14 +89,14 @@ if val_data == []:
 if test_data == []:
     test_data = data[int(0.1 * mlen):int(0.2 * mlen)]
 
-with open("data/sciworld_formatted_train.jsonl", 'w') as f:
+with open(os.path.join(args.output_dir,"sciworld_formatted_train.jsonl"), 'w') as f:
     for item in train_data:
         f.write(json.dumps(item) + "\n")
 
-with open("data/sciworld_formatted_val.jsonl", 'w') as f:
+with open(os.path.join(args.output_dir,"sciworld_formatted_val.jsonl"), 'w') as f:
     for item in val_data:
         f.write(json.dumps(item) + "\n")
 
-with open("data/sciworld_formatted_test.jsonl", 'w') as f:
+with open(os.path.join(args.output_dir,"sciworld_formatted_test.jsonl"), 'w') as f:
     for item in test_data:
         f.write(json.dumps(item) + "\n")
