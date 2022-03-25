@@ -38,7 +38,7 @@ cd ..
 ```
 Train the GPT2 model by
 ```bash
-python train_gpt2.py --model_path gpt2 --bs 8 --train_data data/sciworld_formatted_train.jsonl --val_data data/sciworld_formatted_val.jsonl --num_train_epochs 20 --save_dir_root gpt2_lm
+python train_gpt2.py --model_path gpt2 --bs 12 --train_data data/sciworld_formatted_train.jsonl --val_data data/sciworld_formatted_val.jsonl --num_train_epochs 20 --save_dir_root gpt2_lm
 ```
 Here:
 - **model_path:** can be either a huggingface transformer pretrained gpt2 model name (gpt2, gpt2-medium, gpt2-large, gpt2-xl) or the path to a gpt2 checkpoint
@@ -47,7 +47,7 @@ Here:
 - **val_data:** validation data file name
 - **num_train_epochs:** the maximum training epochs
 
-We train the GPT2 model with this setting using four Nvidia A100 GPUs.
+We train the GPT2 model with this setting using four Nvidia A100 GPUs. Each training epoch took about 20min.
 
 ### Train the CALM-GPT2 agent
 
@@ -110,6 +110,15 @@ If this CALM-GPT2 agent is helpful in your work, please cite the following:
 
 Bibtex
 ```
+@misc{scienceworld2022,
+    title={ScienceWorld: Is your Agent Smarter than a 5th Grader?},
+    author={Ruoyao Wang and Peter Jansen and Marc-Alexandre C{\^o}t{\'e} and Prithviraj Ammanabrolu},
+    year={2022},
+    eprint={2203.07540},
+    archivePrefix={arXiv},
+    primaryClass={cs.CL},
+    url={https://arxiv.org/abs/2203.07540}
+
 @inproceedings{yao2020calm,
     title={Keep CALM and Explore: Language Models for Action Generation in Text-based Games},
     author={Yao, Shunyu and Rao, Rohan and Hausknecht, Matthew and Narasimhan, Karthik},
