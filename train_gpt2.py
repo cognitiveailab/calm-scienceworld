@@ -153,6 +153,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     # model
     parser.add_argument('--model_name', default='model')
+    parser.add_argument('--model_path', default='gpt2')
     parser.add_argument('--initialization', default='pretrained', help='pretrained | random')
     parser.add_argument('--save_dir_root', default='calm/finetune/models', type=str)
 

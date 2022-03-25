@@ -28,7 +28,7 @@ Notice that do not include any other files in the gold path data file folder.
 
 Run
 ```bash
-python data_convert.py --data_dr data/goldpaths-all --output_dir data
+python data_convert.py --data_dir data/goldpaths-all --output_dir data
 ```
 to generate formatted data for GPT2 training. You can skip this step because we already include the formatted data in this repository. You can unzip the formatted gold path data files in the data folder by
 ```bash
@@ -38,9 +38,10 @@ cd ..
 ```
 Train the GPT2 model by
 ```bash
-python train_gpt2.py --bs 8 --train_data data/sciworld_formatted_train.jsonl --val_data data/sciworld_formatted_val.jsonl --num_train_epochs 20 --save_dir_root gpt2_lm
+python train_gpt2.py --model_path gpt2 --bs 8 --train_data data/sciworld_formatted_train.jsonl --val_data data/sciworld_formatted_val.jsonl --num_train_epochs 20 --save_dir_root gpt2_lm
 ```
 Here:
+- **model_path:** can be either a huggingface transformer pretrained gpt2 model name (gpt2, gpt2-medium, gpt2-large, gpt2-xl) or the path to a gpt2 checkpoint
 - **bs:** batch size
 - **train_data:** train data file name
 - **val_data:** validation data file name
