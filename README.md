@@ -43,6 +43,7 @@ Here:
 - **train_data:** train data file name
 - **val_data:** validation data file name
 - **num_train_epochs:** the maximum training epochs
+
 We train the GPT2 model with this setting using four Nvidia A100 GPUs.
 
 ### Train the CALM-GPT2 agent
