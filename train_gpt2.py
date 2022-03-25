@@ -126,7 +126,7 @@ def _validate_gpt(eval_dataloader, lm):
     return eval_loss
 
 def save_gpt(model, tokenizer, save_dir_root, name):
-    output_dir = os.path.join(save_dir_root, "gpt", name)
+    output_dir = os.path.join(save_dir_root, name)
     os.makedirs(output_dir, exist_ok=True)
     model_to_save = model.module if hasattr(model, 'module') else model
 
