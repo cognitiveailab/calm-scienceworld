@@ -3,11 +3,14 @@ from torch.nn import functional as F
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from transformers.modeling_utils import *
 from transformers.generation_beam_search import BeamHypotheses
-from jericho.util import clean
-from jericho.defines import ILLEGAL_ACTIONS, NO_EFFECT_ACTIONS
-
 from .base_lm import BaseLM, device
 
+
+def clean(strIn):
+    charsToFilter = ['\t', '\n', '*', '-']
+    for c in charsToFilter:
+        strIn = strIn.replace(c, ' ')
+    return strIn.strip()
 
 class GPT2LM(BaseLM):
     def load_model(self, model_path):
@@ -33,7 +36,7 @@ class GPT2LM(BaseLM):
         if not ret: ret = [0]
         return ret
 
-    def generate(self, input, k, mask_out=ILLEGAL_ACTIONS + NO_EFFECT_ACTIONS, key=None):
+    def generate(self, input, k, mask_out=[], key=None):
         input_ids = self.sent2ids(input) if isinstance(input, str) else input
         if key is None:
             key = hash((tuple(input_ids), k))
@@ -74,6 +77,7 @@ class GPT2LM(BaseLM):
             log_p = torch.nn.functional.log_softmax(predictions, dim=-1)
             scores.append(log_p[range(len(act)), act].sum().item())
         return scores
+
 
 
 

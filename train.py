@@ -326,7 +326,7 @@ def parse_args():
 
     # language model
     parser.add_argument('--lm_top_k', default=30, type=int,
-                        help='when >0, use lm top-k actions in place of jericho action detection')
+                        help='when >0, use lm top-k actions in place of ScienceWorld action detection')
     parser.add_argument('--lm_path', default='gpt2')
     parser.add_argument('--tokenizer_path', type=str)
     parser.add_argument('--lm_dict', default='')
