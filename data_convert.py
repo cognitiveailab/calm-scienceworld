@@ -16,7 +16,6 @@ for filename in os.listdir(data_dir):
     with open(os.path.join(data_dir, filename), 'r') as f:
         raw_data_list.append(json.load(f))
 
-data = []
 train_data = []
 val_data = []
 test_data = []
@@ -38,13 +37,14 @@ for raw_data in raw_data_list:
             fold = seq_sample['fold']
             obs = steps[0]['observation']
             action = steps[0]['action']
-            for i in range(len(steps)):
+            for i in range(len(steps)-1):
                 if i != 0:
                     prev_step = steps[i-1]
                     curr_step = steps[i]
+                    next_step = steps[i+1]
 
-                    prev_action = prev_step['action']
-                    curr_action = curr_step['action']
+                    prev_action = curr_step['action']
+                    curr_action = next_step['action']
                     prev_obs = prev_step['observation']
                     curr_obs = curr_step['observation']
                     look = curr_step['freelook']
@@ -61,7 +61,8 @@ for raw_data in raw_data_list:
 
                 else:
                     curr_step = steps[i]
-                    curr_action = curr_step['action']
+                    next_step = steps[i+1]
+                    curr_action = next_step['action']
                     curr_obs = curr_step['observation']
                     look = curr_step['freelook']
                     inventory = curr_step['inventory']
@@ -81,13 +82,6 @@ for raw_data in raw_data_list:
                     val_data.append(curr_dat)
                 elif fold == 'test':
                     test_data.append(curr_dat)
-
-mlen = len(data)
-
-if val_data == []:
-    val_data = data[int(0.9 * mlen):]
-if test_data == []:
-    test_data = data[int(0.1 * mlen):int(0.2 * mlen)]
 
 with open(os.path.join(args.output_dir,"sciworld_formatted_train.jsonl"), 'w') as f:
     for item in train_data:
