@@ -50,7 +50,7 @@ def _train_gpt(train_dataloader, validation_dataloader, lm, save_dir_root, args)
         total_actions = 0
         tr_loss = 0
         for step, batch in enumerate(epoch_iterator):
-            b_input_ids, b_input_mask, b_strat = batch
+            b_input_ids, b_strat, b_input_mask = batch
             b_labels = b_input_ids.clone()
             b_labels[b_strat == 0] = -100
             b_input_ids = b_input_ids.to(device)
@@ -106,7 +106,7 @@ def _validate_gpt(eval_dataloader, lm):
     model.eval()
 
     for batch in tqdm(eval_dataloader):
-        b_input_ids, b_input_mask, b_strat = batch
+        b_input_ids, b_strat, b_input_mask = batch
         b_labels = b_input_ids.clone()
         b_labels[b_strat == 0] = -100
 

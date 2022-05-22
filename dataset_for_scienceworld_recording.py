@@ -80,7 +80,7 @@ def train_test_split(data, validate_size=0.9):
     return train_inputs, val_inputs, train_act_masks, val_act_masks, train_att_masks, val_att_masks
 
 
-def _get_dataloader(data_directory, tokenizer, max_len=256, bs=16, shuffle_trajectories=False,
+def _get_dataloader(data_directory, tokenizer, max_len=1024, bs=16, shuffle_trajectories=False,
                    data_percentage=1):
     n_gpu = torch.cuda.device_count()
     per_gpu_batch_size = bs
@@ -93,9 +93,9 @@ def _get_dataloader(data_directory, tokenizer, max_len=256, bs=16, shuffle_traje
     print(str(len(token_id_set)) + " examples in dataset")
     print("Data Sample\n", tokenizer.convert_ids_to_tokens(token_id_set[0]), '\n', act_mask_set[0])
 
-    token_ids = pad_sequences(token_id_set, 512, 'int')
-    act_masks = pad_sequences(act_mask_set, 512, 'uint8')
-    att_masks = pad_sequences(att_mask_set, 512, 'uint8')
+    token_ids = pad_sequences(token_id_set, max_len, 'int')
+    act_masks = pad_sequences(act_mask_set, max_len, 'uint8')
+    att_masks = pad_sequences(att_mask_set, max_len, 'uint8')
 
     data = TensorDataset(torch.tensor(token_ids), torch.tensor(act_masks), torch.tensor(att_masks))
     data_sampler = RandomSampler(data)
@@ -104,7 +104,7 @@ def _get_dataloader(data_directory, tokenizer, max_len=256, bs=16, shuffle_traje
 
     return dataloader
 
-def get_dataloader(train_data, val_data, tokenizer, max_len=256, bs=16, shuffle_trajectories=False,
+def get_dataloader(train_data, val_data, tokenizer, max_len=1024, bs=16, shuffle_trajectories=False,
                    data_percentage=1):
     train_dataloader = _get_dataloader(train_data, tokenizer, max_len=max_len, bs=bs, shuffle_trajectories=shuffle_trajectories,
                    data_percentage=data_percentage)
