@@ -26,15 +26,15 @@ class GPT2LM(BaseLM):
         if not ret: ret = [0]
         return ret
 
-    def sent2ids(self, sent, maxlen=512):
+    def sent2ids(self, sent, maxlen=1024):
         ret = self.tokenizer.encode(clean(sent))
         if len(ret) > maxlen:
             ret = ret[-maxlen:]
         if not ret: ret = [0]
         return ret
 
-    def generate(self, input, k, mask_out=[], key=None):
-        input_ids = self.sent2ids(input) if isinstance(input, str) else input
+    def generate(self, input, k, mask_out=[], key=None, maxlen=1024):
+        input_ids = self.sent2ids(input, maxlen=maxlen) if isinstance(input, str) else input
         if key is None:
             key = hash((tuple(input_ids), k))
         if key in self.generate_dict:
@@ -59,8 +59,8 @@ class GPT2LM(BaseLM):
         self.generate_dict[key] = actions
         return actions
 
-    def score(self, input, acts):
-        input_ids = self.sent2ids(input) if isinstance(input, str) else input
+    def score(self, input, acts, maxlen=1024):
+        input_ids = self.sent2ids(input, maxlen=maxlen) if isinstance(input, str) else input
         input_len = len(input_ids)
         input_ids = torch.tensor([input_ids]).to(device)
         scores = []
