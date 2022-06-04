@@ -1,6 +1,6 @@
 py4j
 pyyaml
-scienceworld
+scienceworld==1.0.0
 -f https://download.pytorch.org/whl/cu113/torch_stable.html
 torch==1.10.1+cu113
 transformers==4.12.3
