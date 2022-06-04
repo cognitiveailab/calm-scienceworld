@@ -50,7 +50,8 @@ class CALMScienceWorldEnv:
         self.steps += 1
         if self.steps >= self.stuck_step_limit:
             done = True
-        if info['score'] == -100:
+        if info['score'] < 0:
+            info['score'] = 0
             done = True
         self.max_score = max(self.max_score, info['score'])
         if done: self.end_scores.append(info['score'])
@@ -71,16 +72,12 @@ class CALMScienceWorldEnv:
         self.max_score = 0
         return ob, info
 
-    def get_end_scores(self, last=1):
-        last = min(last, len(self.end_scores))
-        return sum(self.end_scores[-last:]) / last if last else 0
-
     def getVariationsTrain(self):
         return self.env.getVariationsTrain()
 
     def getVariationsDev(self):
         return self.env.getVariationsDev()
-    
+
     def getVariationsTest(self):
         return self.env.getVariationsTest()
 
